@@ -1,23 +1,43 @@
-import logo from './logo.svg';
-import './App.css';
-
+import { Switch, Route } from "react-router-dom";
+import "./App.css";
+import AboutUs from "./Pages/AboutUs";
+import Home from "./Pages/Home";
+import Error from "./Pages/Error";
+import NavBar from "./Component/Navbar";
+import Footer from "./Component/Footer";
+import Axios from "axios";
+import { useEffect, useState } from "react";
+import UserDetails from "./Pages/UserDetails";
+import CommentPage from "./Pages/CommentPage";
 function App() {
+  const [users, setUsers] = useState([]);
+  const [loadUsers, setLoadUsers] = useState(true);
+  const getUsers = () => {
+    Axios.get("https://jsonplaceholder.typicode.com/users")
+      .then((res) => {
+        setUsers(res.data);
+        setLoadUsers(false);
+      })
+      .catch((err) => console.log(err));
+  };
+  useEffect(() => {
+    getUsers();
+  }, []);
   return (
     <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+      <NavBar />
+      <Switch>
+        <Route
+          exact
+          path="/"
+          render={() => <Home users={users} loadUsers={loadUsers} />}
+        />
+        <Route path="/aboutus" component={AboutUs} />
+        <Route path="/users/:id" component={UserDetails} />
+        <Route path="/posts/:id" component={CommentPage} />
+        <Route path="/*" component={Error} />
+      </Switch>
+      <Footer />
     </div>
   );
 }
